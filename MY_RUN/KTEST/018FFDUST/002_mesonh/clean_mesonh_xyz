@@ -1,0 +1,6 @@
+#!/bin/bash
+set -x
+rm -f PRESSURE file_for_xtransfer
+rm -f RELIEF3D.*  
+rm -f REL3D.1* OUT* pipe_name
+

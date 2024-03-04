@@ -1,0 +1,14 @@
+#!/bin/bash
+#MNH_LIC Copyright 1994-2014 CNRS, Meteo-France and Universite Paul Sabatier
+#MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence
+#MNH_LIC version 1. See LICENSE, CeCILL-C_V1-en.txt and CeCILL-C_V1-fr.txt  
+#MNH_LIC for details. version 1.
+set -x
+ln -fs ../001_prep_ideal_case/RELIEF3D*.{des,lfi,nc} .
+rm parallel/* 
+rm parallel/*/* 
+rm MODEL1/* 
+rm ForeFire/Outputs/output.0.*
+#rm ForeFire/Outputs/*
+rm -f REL3D.1* OUT*
+time ${MPIRUN} MESONH${XYZ}

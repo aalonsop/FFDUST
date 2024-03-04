@@ -1,0 +1,4 @@
+#!/bin/bash
+rm -f *.png *.pdf *.nc
+rm -Rf __pycache__
+find . -type l -delete

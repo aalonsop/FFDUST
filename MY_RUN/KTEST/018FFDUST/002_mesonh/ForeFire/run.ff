@@ -1,0 +1,7 @@
+setParameters[ForeFireDataDirectory=.;fireOutputDirectory=Outputs]
+include[Params.ff]
+setParameters[atmoNX=102;atmoNY=52;refYear=2023;refDay=189]
+include[Init.ff]
+print[]
+goTo[t=8000]
+!save["toto.nc"]
