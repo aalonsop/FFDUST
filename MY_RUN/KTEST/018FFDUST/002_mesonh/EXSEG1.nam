@@ -65,7 +65,7 @@
     chemout = 0
 /
 &NAM_DUST
-    LDUST = .FALSE.,
+    LDUST = .TRUE.,
     LVARSIG = .FALSE.,
     LSEDIMDUST = .TRUE.,
     LRGFIX_DST = .FALSE.,
