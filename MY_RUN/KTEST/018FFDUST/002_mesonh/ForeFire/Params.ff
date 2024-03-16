@@ -1,6 +1,6 @@
 setParameters[ForeFireDataDirectory=ForeFire;fireOutputDirectory=ForeFire/Outputs;atmoOutputDirectories=MODEL1;outputsUpdate=10;bmapOutputUpdate=10]
 setParameters[watchedProc=-]
-setParameters[BMapFiles=fireBmap.nc]
+setParameters[BMapFiles=test.nc]
 setParameters[NetCDFfile=lpsimple.nc;fuelsTableFile=fuels.ff;fluxNetCDFfile=lpsimple.nc]
 setParameters[relax=0.1;smoothing=5;Iso.speed=0.5]
 setParameter[spatialIncrement=0.1]
