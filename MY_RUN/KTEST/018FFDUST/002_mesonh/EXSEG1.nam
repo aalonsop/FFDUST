@@ -25,7 +25,7 @@
 /
 &NAM_DYN XSEGLEN =3000., XASSELIN = 0.2, LCORIO = F,
          XALKTOP = 0.005, XALZBOT = 2000., LNUMDIFU =.T. /
-&NAM_BACKUP XBAK_TIME_FREQ(1) = 20., XBAK_TIME_FREQ_FIRST(1) =0. /
+&NAM_BACKUP XBAK_TIME_FREQ(1) = 20., XBAK_TIME_FREQ_FIRST(1) =2960. /
 
 &nam_paramn
     cturb = 'TKEL'
@@ -43,7 +43,7 @@
 /
 
 &nam_dynn
-    xtstep = 1.0
+    xtstep = 0.5
     cpresopt = 'ZRESI'
     nitr = 10
     lhorelax_uvwth = .false.
@@ -65,7 +65,7 @@
     chemout = 0
 /
 &NAM_DUST
-    LDUST = .TRUE.,
+    LDUST = .FALSE.,
     LVARSIG = .FALSE.,
     LSEDIMDUST = .TRUE.,
     LRGFIX_DST = .FALSE.,
