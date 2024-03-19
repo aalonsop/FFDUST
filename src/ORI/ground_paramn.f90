@@ -690,6 +690,28 @@ IF ( LFOREFIRE ) THEN
     IF (LDUST) THEN
 !IF ((LDUST).AND.(FFCOUPLING)) THEN
 ZSFTS(:,:,NSV_DSTBEG:NSV_DSTEND) = 1E-12 ! en attendant FF valeur constante
+print *, 'NSV_DSTBEG = ', NSV_DSTBEG
+print *, 'NSV_DSTEND = ', NSV_DSTEND
+print *, 'Dimension  = ', shape(ZSFTS)
+print *, 'Dimension1  = ', size(ZSFTS,1)
+print *, 'Dimension2  = ', size(ZSFTS,2)
+print *, 'Dimension3  = ', size(ZSFTS,3)
+!ZSFTS(10,10,NSV_DSTBEG:NSV_DSTEND) = 1E-12 ! en attendant FF valeur constante
+IF ( FFCOUPLING ) THEN
+
+
+	CALL SEND_GROUND_WIND_n(XUT, XVT, IKB, IINFO_ll)
+	
+	CALL FOREFIRE_RECEIVE_PARAL_n()
+   
+   CALL COUPLING_FOREFIRE_n(XTSTEP, ZSFTH, ZSFTQ, ZSFTS(:,:,:))
+	
+	CALL FOREFIRE_SEND_PARAL_n(IINFO_ll)
+
+END IF   
+FF_TIME = FF_TIME + XTSTEP
+#endif
+ZSFTS(:,:,NSV_DSTBEG) = ZSFTS(:,:,NSV_DSTBEG) + ZSFTS(:,:,4)/100 ! On rajoute Bratio au moment 1
 ! a mettre eventuellement dans FF pour flux de brindilles
 ! ZSFTS : flux de masse par modes brindilles en kg/m2/sec dans
 ! 1 moment flux de masse dans : mode 1 ZSFTS(:,:,NSV_DSTBEG) / mode 2 ZSFTS(:,:,NSV_DSTBEG+1) / mode 3  ZSFTS(:,:,NSV_DSTBEG+2)
@@ -750,20 +772,20 @@ END IF ! LDUST + FF
 
 END IF
 
-IF ( FFCOUPLING ) THEN
-
-
-	CALL SEND_GROUND_WIND_n(XUT, XVT, IKB, IINFO_ll)
-	
-	CALL FOREFIRE_RECEIVE_PARAL_n()
-   
-   CALL COUPLING_FOREFIRE_n(XTSTEP, ZSFTH, ZSFTQ, ZSFTS(:,:,:))
-	
-	CALL FOREFIRE_SEND_PARAL_n(IINFO_ll)
-
-END IF   
-FF_TIME = FF_TIME + XTSTEP
-#endif
+!IF ( FFCOUPLING ) THEN
+!
+!
+!	CALL SEND_GROUND_WIND_n(XUT, XVT, IKB, IINFO_ll)
+!	
+!	CALL FOREFIRE_RECEIVE_PARAL_n()
+!   
+!   CALL COUPLING_FOREFIRE_n(XTSTEP, ZSFTH, ZSFTQ, ZSFTS(:,:,:))
+!	
+!	CALL FOREFIRE_SEND_PARAL_n(IINFO_ll)
+!
+!END IF   
+!FF_TIME = FF_TIME + XTSTEP
+!#endif
 
 
 !
