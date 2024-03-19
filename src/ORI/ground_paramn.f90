@@ -711,7 +711,7 @@ IF ( FFCOUPLING ) THEN
 END IF   
 FF_TIME = FF_TIME + XTSTEP
 #endif
-ZSFTS(:,:,NSV_DSTBEG) = ZSFTS(:,:,NSV_DSTBEG) + ZSFTS(:,:,4)/100 ! On rajoute Bratio au moment 1
+ZSFTS(:,:,NSV_DSTBEG) = ZSFTS(:,:,NSV_DSTBEG) + ZSFTS(:,:,3)/100 ! On rajoute Bratio au moment 1
 ! a mettre eventuellement dans FF pour flux de brindilles
 ! ZSFTS : flux de masse par modes brindilles en kg/m2/sec dans
 ! 1 moment flux de masse dans : mode 1 ZSFTS(:,:,NSV_DSTBEG) / mode 2 ZSFTS(:,:,NSV_DSTBEG+1) / mode 3  ZSFTS(:,:,NSV_DSTBEG+2)
