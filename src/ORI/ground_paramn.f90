@@ -689,16 +689,17 @@ IF ( LFOREFIRE ) THEN
                
     IF (LDUST) THEN
 !IF ((LDUST).AND.(FFCOUPLING)) THEN
+
 ZSFTS(:,:,NSV_DSTBEG:NSV_DSTEND) = 1E-12 ! en attendant FF valeur constante
+
 print *, 'NSV_DSTBEG = ', NSV_DSTBEG
 print *, 'NSV_DSTEND = ', NSV_DSTEND
 print *, 'Dimension  = ', shape(ZSFTS)
 print *, 'Dimension1  = ', size(ZSFTS,1)
 print *, 'Dimension2  = ', size(ZSFTS,2)
 print *, 'Dimension3  = ', size(ZSFTS,3)
-!ZSFTS(10,10,NSV_DSTBEG:NSV_DSTEND) = 1E-12 ! en attendant FF valeur constante
-IF ( FFCOUPLING ) THEN
 
+IF ( FFCOUPLING ) THEN
 
 	CALL SEND_GROUND_WIND_n(XUT, XVT, IKB, IINFO_ll)
 	
@@ -711,7 +712,19 @@ IF ( FFCOUPLING ) THEN
 END IF   
 FF_TIME = FF_TIME + XTSTEP
 #endif
-ZSFTS(:,:,NSV_DSTBEG) = ZSFTS(:,:,NSV_DSTBEG) + ZSFTS(:,:,3)/100 ! On rajoute Bratio au moment 1
+!Pour 1 moment utiliser les indices +0, +1, +2
+!ZSFTS(:,:,NSV_DSTBEG) = ZSFTS(:,:,NSV_DSTBEG) + ZSFTS(:,:,3)/1000*2 ! On rajoute Bratio au mode 1
+!ZSFTS(:,:,NSV_DSTBEG+1) = ZSFTS(:,:,NSV_DSTBEG+1) + ZSFTS(:,:,3)/1000*3 ! On rajoute Bratio au mode 2
+!ZSFTS(:,:,NSV_DSTBEG+2) = ZSFTS(:,:,NSV_DSTBEG+2) + ZSFTS(:,:,3)/1000*5 ! On rajoute Bratio au mode 3
+!Pour 2 moments utiliser les indices +1, +3, +5
+ZSFTS(:,:,NSV_DSTBEG+1) = ZSFTS(:,:,NSV_DSTBEG+1) + ZSFTS(:,:,3)/1000*2 ! On rajoute Bratio au mode 1
+ZSFTS(:,:,NSV_DSTBEG+3) = ZSFTS(:,:,NSV_DSTBEG+3) + ZSFTS(:,:,3)/1000*3 ! On rajoute Bratio au mode 2
+ZSFTS(:,:,NSV_DSTBEG+5) = ZSFTS(:,:,NSV_DSTBEG+5) + ZSFTS(:,:,3)/1000*5 ! On rajoute Bratio au mode 3
+!Pour 3 moments utiliser les indices +1, +4, +7
+!ZSFTS(:,:,NSV_DSTBEG+1) = ZSFTS(:,:,NSV_DSTBEG+1) + ZSFTS(:,:,3)/1000*2 ! On rajoute Bratio au mode 1
+!ZSFTS(:,:,NSV_DSTBEG+4) = ZSFTS(:,:,NSV_DSTBEG+4) + ZSFTS(:,:,3)/1000*3 ! On rajoute Bratio au mode 2
+!ZSFTS(:,:,NSV_DSTBEG+7) = ZSFTS(:,:,NSV_DSTBEG+7) + ZSFTS(:,:,3)/1000*5 ! On rajoute Bratio au mode 3
+
 ! a mettre eventuellement dans FF pour flux de brindilles
 ! ZSFTS : flux de masse par modes brindilles en kg/m2/sec dans
 ! 1 moment flux de masse dans : mode 1 ZSFTS(:,:,NSV_DSTBEG) / mode 2 ZSFTS(:,:,NSV_DSTBEG+1) / mode 3  ZSFTS(:,:,NSV_DSTBEG+2)
