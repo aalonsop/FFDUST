@@ -1,0 +1,1 @@
+/Users/filippi_j/anaconda3/envs/Tensor/bin/python /Users/filippi_j/soft/firefront/tools/postprocessing/pMNHFF2VTK.py MODEL1/output RELIEF3D.nc vtkout/ 
