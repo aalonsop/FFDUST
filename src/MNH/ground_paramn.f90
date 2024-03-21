@@ -152,7 +152,7 @@ USE MODD_CONF,              ONLY: CPROGRAM, LCARTESIAN, NHALO, NVERB
 USE MODD_CONF_n,            ONLY: NRR
 USE MODD_COUPLING_LEVELS_n
 USE MODD_CST,               ONLY: XP00, XCPD, XRD, XRV, XRHOLW, XDAY, XPI, XMD, XAVOGADRO
-USE MODD_CSTS_DUST,         ONLY: XMOLARWEIGHT_DUST
+USE MODD_CSTS_DUST,         ONLY: XMOLARWEIGHT_DUST, XDENSITY_DUST
 USE MODD_CSTS_SALT,         ONLY: XMOLARWEIGHT_SALT
 USE MODD_DEEP_CONVECTION_n, ONLY: XPRCONV, XPRSCONV
 USE MODD_DRAGBLDG_n,        ONLY: LFLUXBLDG
@@ -160,7 +160,7 @@ USE MODD_DIAG_FLAG,         ONLY: LCHEMDIAG
 USE MODD_DIAG_IN_RUN
 USE MODD_DIM_n,             ONLY: NKMAX
 USE MODD_DIMPHYEX,          ONLY: DIMPHYEX_t
-USE MODD_DUST,              ONLY: LDUST 
+USE MODD_DUST,              !ONLY: LDUST 
 USE MODD_DYN_n,             ONLY: XTSTEP
 USE MODD_FIELD_n,           ONLY: XUT, XVT, XWT, XTHT, XRT, XPABST, XSVT, XTKET, XZWS, XRTHS, XRRS, &
                                   XFLX_SLT, XFLXT_SLT, XFLX_AER, XFLXT_AER, XFLX_DMS, XFLXT_DMS
@@ -325,6 +325,9 @@ REAL, DIMENSION(SIZE(PSFTH,1),SIZE(PSFTH,2),NBLOWSNOW_2D)  :: ZBLOWSNOW_2D  ! 2D
                                   !             - total mass concentration in Canopy
                                   !             - equivalent concentration in the saltation layer
 
+REAL, DIMENSION(SIZE(PSFTH,1),SIZE(PSFTH,2),3):: ZFM ! Turbulent flux of scalar
+REAL :: ZDENSITY, ZCONVERTFACM0,  ZCONVERTFACM3, ZCONVERTFACM6, ZINIRADIUSFIRE, ZINISIG
+INTEGER :: JMODE, JSV_IDX
 !
 ! Anxiliary variables
 !
@@ -828,7 +831,18 @@ IF ( LFOREFIRE ) THEN
 	CALL FOREFIRE_DUMP_FIELDS_n(XUT, XVT, XWT, XSVT&
 	           , XTHT, XRT(:,:,:,1), XPABST, XTKET&
 	           , IDIM1+2, IDIM2+2, NKMAX+2)
-END IF
+
+    IF (LDUST) THEN
+!IF ((LDUST).AND.(FFCOUPLING)) THEN
+
+ZSFTS(:,:,NSV_DSTBEG:NSV_DSTEND) = 1E-12 ! en attendant FF valeur constante
+
+print *, 'NSV_DSTBEG = ', NSV_DSTBEG
+print *, 'NSV_DSTEND = ', NSV_DSTEND
+print *, 'Dimension  = ', shape(ZSFTS)
+print *, 'Dimension1  = ', size(ZSFTS,1)
+print *, 'Dimension2  = ', size(ZSFTS,2)
+print *, 'Dimension3  = ', size(ZSFTS,3)
 
 IF ( FFCOUPLING ) THEN
 
@@ -836,13 +850,86 @@ IF ( FFCOUPLING ) THEN
 	
 	CALL FOREFIRE_RECEIVE_PARAL_n()
    
-   CALL COUPLING_FOREFIRE_n(XTSTEP, ZSFTH, ZSFTQ, ZSFTS)
+   CALL COUPLING_FOREFIRE_n(XTSTEP, ZSFTH, ZSFTQ, ZSFTS(:,:,:))
 	
 	CALL FOREFIRE_SEND_PARAL_n(IINFO_ll)
    
 END IF
-
 FF_TIME = FF_TIME + XTSTEP
+
+!Pour 1 moment utiliser les indices +0, +1, +2
+!ZSFTS(:,:,NSV_DSTBEG) = ZSFTS(:,:,NSV_DSTBEG) + ZSFTS(:,:,3)/1000*2 ! On rajoute Bratio au mode 1
+!ZSFTS(:,:,NSV_DSTBEG+1) = ZSFTS(:,:,NSV_DSTBEG+1) + ZSFTS(:,:,3)/1000*3 ! On rajoute Bratio au mode 2
+!ZSFTS(:,:,NSV_DSTBEG+2) = ZSFTS(:,:,NSV_DSTBEG+2) + ZSFTS(:,:,3)/1000*5 ! On rajoute Bratio au mode 3
+!Pour 2 moments utiliser les indices +1, +3, +5
+ZSFTS(:,:,NSV_DSTBEG+1) = ZSFTS(:,:,NSV_DSTBEG+1) + ZSFTS(:,:,3)/1000*2 ! On rajoute Bratio au mode 1
+ZSFTS(:,:,NSV_DSTBEG+3) = ZSFTS(:,:,NSV_DSTBEG+3) + ZSFTS(:,:,3)/1000*3 ! On rajoute Bratio au mode 2
+ZSFTS(:,:,NSV_DSTBEG+5) = ZSFTS(:,:,NSV_DSTBEG+5) + ZSFTS(:,:,3)/1000*5 ! On rajoute Bratio au mode 3
+!Pour 3 moments utiliser les indices +1, +4, +7
+!ZSFTS(:,:,NSV_DSTBEG+1) = ZSFTS(:,:,NSV_DSTBEG+1) + ZSFTS(:,:,3)/1000*2 ! On rajoute Bratio au mode 1
+!ZSFTS(:,:,NSV_DSTBEG+4) = ZSFTS(:,:,NSV_DSTBEG+4) + ZSFTS(:,:,3)/1000*3 ! On rajoute Bratio au mode 2
+!ZSFTS(:,:,NSV_DSTBEG+7) = ZSFTS(:,:,NSV_DSTBEG+7) + ZSFTS(:,:,3)/1000*5 ! On rajoute Bratio au mode 3
+
+! a mettre eventuellement dans FF pour flux de brindilles
+! ZSFTS : flux de masse par modes brindilles en kg/m2/sec dans
+! 1 moment flux de masse dans : mode 1 ZSFTS(:,:,NSV_DSTBEG) / mode 2 ZSFTS(:,:,NSV_DSTBEG+1) / mode 3  ZSFTS(:,:,NSV_DSTBEG+2)
+! 2 moments flux de masse dans : mode 1 ZSFTS(:,:,NSV_DSTBEG+1) / mode 2 ZSFTS(:,:,NSV_DSTBEG+3) / mode 3  ZSFTS(:,:,NSV_DSTBEG+5)
+! 3 moments flux de masse dans : mode 1 ZSFTS(:,:,NSV_DSTBEG+1) / mode 2 ZSFTS(:,:,NSV_DSTBEG+4) / mode 3  ZSFTS(:,:,NSV_DSTBEG+7)
+
+ZFM(:,:,:)=0.
+ZCONVERTFACM0 = XMOLARWEIGHT_DUST / XAVOGADRO ! changer XMOLARWEIGHT_DST dans modd_csts_dust.f90
+ZCONVERTFACM3 = 4./3. * XPI * XDENSITY_DUST / 1.d18 ! chnager XDENSITY_DUST dans modd_csts_dust.f90
+ZCONVERTFACM6 = ZCONVERTFACM0 * 1.d6
+!
+DO JMODE=1,NMODE_DST
+  ZINISIG = XINISIG(JPDUSTORDER(JMODE))
+  !Calculations here are for one mode only
+  IF (CRGUNITD=="MASS") THEN
+    ZINIRADIUSFIRE = XINIRADIUS(JPDUSTORDER(JMODE)) * EXP(-3.*(LOG(ZINISIG))**2)
+  ELSE
+    ZINIRADIUSFIRE = XINIRADIUS(JPDUSTORDER(JMODE))
+  END IF
+
+  !Make index which is 0 for first mode, 3 for second, 6 for third etc
+  IF (LVARSIG) THEN
+    JSV_IDX = (JMODE-1)*3
+  ELSE IF (LRGFIX_DST) THEN
+    JSV_IDX = JMODE-2
+  ELSE
+    JSV_IDX = (JMODE-1)*2
+  END IF
+
+ !Get flux of number in #/m2/sec from flux of mass in kg/m2/sec
+  ZFM(:,:,1) = ZSFTS(:,:,NSV_DSTBEG+JSV_IDX+1)                     & ! kg_{dst}/m2/sec
+             / ZINIRADIUSFIRE**3                & ! *um^{-3} ==> #/m2/sec*(m3/um3)
+             * EXP(-4.5*(LOG(ZINISIG))**2)  & ! Take into account size distribution  
+             / ZCONVERTFACM3           ! /(kg_{dst}/m^{3}_{dst)} ==> m^3_{dst}/m2/sec  
+
+  ! Get flux of moment 6 consistent with the other moments
+  ZFM(:,:,3) = ZFM(:,:,1)                              & ! [#/m3]
+             * (ZINIRADIUSFIRE**6)             & ! *um6 ==> um6/m2/sec 
+             * EXP(18. *(LOG(ZINISIG))**2)   ! Take into account size distribution  
+
+  !Get flux of Moment 0 in transport units
+  IF (.NOT.LRGFIX_DST) THEN
+    ZSFTS(:,:,NSV_DSTBEG+JSV_IDX) = ZFM(:,:,1)            & ! particles/m^2/sec
+                         * ZCONVERTFACM0       ! ==> particles/m2/sec * kg_dst/m3_{air}  
+  END IF
+
+  ! Flux moment 6
+  IF (LVARSIG) THEN
+    ZSFTS(:,:,NSV_DSTBEG+JSV_IDX+2) = ZFM(:,:,3)          & ! um^6/m^2/sec
+                         * ZCONVERTFACM6     ! ==>   
+  ENDIF
+
+ENDDO
+DO JMODE=NSV_DSTBEG,NSV_DSTEND
+print*,'ZSFTS ',JMODE-NSV_DSTBEG+1,'=',MINVAL(ZSFTS(:,:,JMODE)), MAXVAL(ZSFTS(:,:,JMODE))
+END DO
+END IF ! LDUST + FF
+
+END IF
+ 
 #endif
 !
 ! Friction of components along slope axes (U: largest local slope axis, V: zero slope axis)

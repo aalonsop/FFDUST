@@ -32,6 +32,7 @@ USE MODD_CSTS, ONLY : XPI, XAVOGADRO, XG
 !
 USE MODE_DSLT_SURF
 USE MODI_DSLT_VELGRAV1D
+USE MODD_BLANK_n
 !
 USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 USE PARKIND1  ,ONLY : JPRB
@@ -89,7 +90,7 @@ IF (LHOOK) CALL DR_HOOK('DSLT_DEP',0,ZHOOK_HANDLE)
 ZUSTAR(:) = MAX(PUSTAR(:), 1.E-20)
 ZRESA (:) = MIN(MAX(PRESA(:), 1.E-20), 9999.)
 ! Save scalars in local array
-ZSVT(:,:) = MAX(PSVT(:,:), XSURF_TINY)
+ZSVT(:,:) = MAX(PSVT(:,:), 1E-40)
 !
 ZMU(:)    = 0.
 ZVGK(:,:) = 0.
@@ -137,7 +138,7 @@ DO  JN = 1,KPMODE
   !
   !         deposition velocity for each cover type
   !         ----------------------------------------
-  !Stoke's number, Seinfeld & Pandis, pp 965
+  ! Stoke s number, Seinfeld & Pandis, pp 965
   ZSTN(:,JN) = ZVG(:,JN)*ZUSTAR(:)**2/(XG*ZNU(:))
   ZSTN(:,JN) = MAX(ZSTN(:,JN), 0.05)
   !
@@ -184,6 +185,7 @@ DO  JN = 1,KPMODE*3
 END DO
 
 ! Only M3 flux (mass) has been used ; flux for over moment has been made after
+IF (.NOT.(LDUMMY4)) ZVD(:,:) = 0.
 DO JN = 1,KPMODE
   PFSVT(:,NM3(JN)) =  PFSVT(:,NM3(JN)) - PSVT(:,NM3(JN))  * ZVD(:,2+(JN-1)*3)
 ENDDO
