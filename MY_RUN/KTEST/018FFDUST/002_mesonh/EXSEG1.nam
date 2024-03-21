@@ -23,7 +23,7 @@
     lturb_diag = .false.
     lsubg_cond = .true.
 /
-&NAM_DYN XSEGLEN =3000., XASSELIN = 0.2, LCORIO = F,
+&NAM_DYN XSEGLEN =5000., XASSELIN = 0.2, LCORIO = F,
          XALKTOP = 0.005, XALZBOT = 2000., LNUMDIFU =.T. /
 &NAM_BACKUP XBAK_TIME_FREQ(1) = 20., XBAK_TIME_FREQ_FIRST(1) =50. /
 
